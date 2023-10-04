@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Management System</title>
+</head>
+<body align="center" bgcolor="pink">
+    <h1>Loan Management System</h1>
+
+    <div>
+        <label for="email">Email:</label>
+
+        <input type="email" id="email" placeholder="Enter your email"required><br><br>
+        <label for="role">Role:</label>
+        <select id="role">
+		<option value=""> </option>
+		<option value="admin">Admin</option>
+            <option value="borrower">Borrower</option>
+            <option value="lender">Lender</option>
+        </select><br><br>
+        <button onclick="registerUser()">Register</button>
+    </div><br><br>
+
+    <div id="borrowerSection" style="display: none;">
+        <h2>Borrower Section</h2>
+        <button onclick="requestLoan()">Request Loan</button>
+        <h3>My Loans:</h3>
+        <ul id="borrowerLoans"></ul>
+    </div>
+
+    <div id="lenderSection" style="display: none;">
+        <h2>Lender Section</h2>
+        <h3>My Loans:</h3>
+        <ul id="lenderLoans"></ul>
+    </div>
+
+    <div id="adminSection" style="display: none;">
+        <h2>Admin Section</h2>
+        <h3>All Transactions:</h3>
+        <ul id="adminTransactions"></ul>
+    </div>
+
+    <script>
+        let users = [];
+
+        function registerUser() {
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+            const user = { email, role, loans: [] };
+            users.push(user);
+
+            if (role === 'borrower') 
+	   {
+                document.getElementById('borrowerSection').style.display = 'block';
+            } 
+		else if (role === 'lender') {
+                document.getElementById('lenderSection').style.display = 'block';
+            }
+		 else 
+		{
+                document.getElementById('adminSection').style.display = 'block';
+            }
+        }
+
+        function requestLoan() {
+            const currentUser = getCurrentUser();
+            const loanAmount = Math.floor(Math.random() * 1000) + 1; 
+            const loan = { amount: loanAmount, status: 'pending' };
+            currentUser.loans.push(loan);
+            updateDashboard();
+        }
+
+        function confirmLoan(index) {
+            const currentUser = getCurrentUser();
+            const loan = currentUser.loans[index];
+            loan.status = 'approved';
+            updateDashboard();
+        }
+
+        function updateDashboard() {
+            const currentUser = getCurrentUser();
+
+            if (currentUser.role === 'borrower') {
+                const borrowerLoans = document.getElementById('borrowerLoans');
+                borrowerLoans.innerHTML = '';
+                currentUser.loans.forEach((loan, index) => {
+                    borrowerLoans.innerHTML += `<li>Loan Amount: $${loan.amount}, Status: ${loan.status}</li>`;
+                });
+            } else if (currentUser.role === 'lender') {
+                const lenderLoans = document.getElementById('lenderLoans');
+                lenderLoans.innerHTML = '';
+                currentUser.loans.forEach((loan, index) => {
+                    lenderLoans.innerHTML += `<li>Loan Amount: $${loan.amount}, Status: ${loan.status} <button onclick="confirmLoan(${index})">Confirm Payment</button></li>`;
+                });
+            } else {
+                const adminTransactions = document.getElementById('adminTransactions');
+                adminTransactions.innerHTML = '';
+                users.forEach(user => {
+                    user.loans.forEach(loan => {
+                        adminTransactions.innerHTML += `<li>User: ${user.email}, Loan Amount: $${loan.amount}, Status: ${loan.status}</li>`;
+                    });
+                });
+            }
+        }
+
+        function getCurrentUser() {
+            const email = document.getElementById('email').value;
+            return users.find(user => user.email === email);
+        }
+    </script>
+</body>
+
+</html>
